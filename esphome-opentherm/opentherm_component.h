@@ -21,16 +21,18 @@ private:
   OpenthermFloatOutput *pid_output_; 
 public:
   Switch *thermostatSwitch = new OpenthermSwitch();
-  Sensor *external_temperature_sensor = new Sensor();
+  //Sensor *external_temperature_sensor = new Sensor();
   Sensor *return_temperature_sensor = new Sensor();
   Sensor *boiler_temperature = new Sensor();
-  Sensor *pressure_sensor = new Sensor();
+  //Sensor *pressure_sensor = new Sensor();
   Sensor *modulation_sensor = new Sensor();
   Sensor *heating_target_temperature_sensor = new Sensor();
   OpenthermClimate *hotWaterClimate = new OpenthermClimate();
   OpenthermClimate *heatingWaterClimate = new OpenthermClimate();
   BinarySensor *flame = new OpenthermBinarySensor();
-  
+  BinarySensor *CentralHeatingActive = new OpenthermBinarySensor();
+  BinarySensor *HotWaterActive = new OpenthermBinarySensor();  
+
   // Set 3 sec. to give time to read all sensors (and not appear in HA as not available)
   OpenthermComponent(): PollingComponent(3000) {
   }
@@ -142,11 +144,13 @@ public:
     float modulation = getModulation();
 
     // Publish sensor values
-    flame->publish_state(isFlameOn); 
-    external_temperature_sensor->publish_state(ext_temperature);
+    flame->publish_state(isFlameOn);
+    CentralHeatingActive->publish_state(isCentralHeatingActive);
+    HotWaterActive->publish_state(isHotWaterActive);
+    //external_temperature_sensor->publish_state(ext_temperature);
     return_temperature_sensor->publish_state(return_temperature);
     boiler_temperature->publish_state(boilerTemperature);
-    pressure_sensor->publish_state(pressure);
+    //pressure_sensor->publish_state(pressure);
     modulation_sensor->publish_state(modulation);
     
     heating_target_temperature_sensor->publish_state(heating_target_temperature);
