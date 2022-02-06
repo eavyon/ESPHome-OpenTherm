@@ -1,3 +1,5 @@
+// 6-2-2022 Made changes to readout Vaillant VHR 18-22C due to not all opentherm id's work.
+
 # ESPHome OpenTherm
 
 [![build](https://github.com/rsciriano/ESPHome-OpenTherm/actions/workflows/build.yml/badge.svg)](https://github.com/rsciriano/ESPHome-OpenTherm/actions/workflows/build.yml)
@@ -12,4 +14,4 @@ This is an example of a integration with a OpenTherm boiler using [ESPHome](http
     - Set the sensor entity_id with the external temperature sensor's name from Home Assistant. (The ESPHome sensor name is temperature_sensor).
 - Flash the ESP and configure in Home Assistant. It should be auto-discovered by the ESPHome Integration.
 
-// 6-2-2022 Made changes to readout Vaillant VHR 18-22C due to not all opentherm id's work.
+
