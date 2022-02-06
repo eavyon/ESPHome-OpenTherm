@@ -128,11 +128,11 @@ public:
       heating_target_temperature = heatingWaterClimate->target_temperature;
       ESP_LOGD("opentherm_component", "setBoilerTemperature  at %f °C (from heating water climate)", heating_target_temperature);
     }
-    else {
-      // If the room thermostat is off, set it to 10, so that the pump continues to operate
-      heating_target_temperature = 10.0;
-      ESP_LOGD("opentherm_component", "setBoilerTemperature at %f °C (default low value)", heating_target_temperature);
-    }
+//    else {
+//      // If the room thermostat is off, set it to 10, so that the pump continues to operate
+//      heating_target_temperature = 10.0;
+//      ESP_LOGD("opentherm_component", "setBoilerTemperature at %f °C (default low value)", heating_target_temperature);
+//    }
     ot.setBoilerTemperature(heating_target_temperature);
 
     // Set hot water temperature
