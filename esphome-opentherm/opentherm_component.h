@@ -106,14 +106,16 @@ public:
     if (this->pid_output_ != nullptr) {
       float pid_output = pid_output_->get_state();
       //Idle action, disable heating in statusupdate
-      if (pid_output == 0.0f) { //Is there no status of climate controller mode like idle?
+      if (pid_output == 0.0f) { //Is there no status of climate controller mode idle?
         //heating_target_temperature = 10.0f;
-        bool enableCentralHeating = heatingWaterClimate->mode == ClimateMode::CLIMATE_MODE_OFF;
+        //bool enableCentralHeating = heatingWaterClimate->mode == ClimateMode::CLIMATE_MODE_OFF;
+        bool enableCentralHeating = false;
+        heating_target_temperature =  (heatingWaterClimate->target_temperature_high - heatingWaterClimate->target_temperature_low) + heatingWaterClimate->target_temperature_low;
       }
       //Send PID calculated temperature
       else {
         heating_target_temperature =  pid_output * (heatingWaterClimate->target_temperature_high - heatingWaterClimate->target_temperature_low) 
-        + heatingWaterClimate->target_temperature_low;      
+        + heatingWaterClimate->target_temperature_low;
       }
       ESP_LOGD("opentherm_component", "setBoilerTemperature  at %f °C (from PID Output)", heating_target_temperature);
     }
@@ -124,10 +126,11 @@ public:
     }
     //If thermostat doesn't control
     else {
-      bool enableCentralHeating = heatingWaterClimate->mode == ClimateMode::CLIMATE_MODE_OFF;
+      bool enableCentralHeating = false;
+      //bool enableCentralHeating = heatingWaterClimate->mode == ClimateMode::CLIMATE_MODE_OFF;
 //      // If the room thermostat is off, set it to 10, so that the pump continues to operate
-//      heating_target_temperature = 10.0;
-//      ESP_LOGD("opentherm_component", "setBoilerTemperature at %f °C (default low value)", heating_target_temperature);
+      heating_target_temperature = 10.0;
+      ESP_LOGD("opentherm_component", "setBoilerTemperature at %f °C (default low value)", heating_target_temperature);
     }
     
     //Set/Get Boiler Status
@@ -137,7 +140,6 @@ public:
     bool isHotWaterActive = ot.isHotWaterActive(response);
     float return_temperature = getReturnTemperature();
     float hotWater_temperature = getHotWaterTemperature();
-
 
     //Set target temperature, CHenable takes precedence over it so it only works when heat is enabled
     ot.setBoilerTemperature(heating_target_temperature);
