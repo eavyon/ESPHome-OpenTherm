@@ -101,6 +101,34 @@ public:
     bool enableHotWater = hotWaterClimate->mode == ClimateMode::CLIMATE_MODE_HEAT;
     bool enableCooling = false; // this boiler is for heating only
 
+    // Set temperature depending on room thermostat
+    float heating_target_temperature;
+    if (this->pid_output_ != nullptr) {
+      float pid_output = pid_output_->get_state();
+      //Idle action, disable heating in statusupdate
+      if (pid_output == 0.0f) { //Is there no status of climate controller mode like idle?
+        //heating_target_temperature = 10.0f;
+        bool enableCentralHeating = heatingWaterClimate->mode == ClimateMode::CLIMATE_MODE_OFF;
+      }
+      //Send PID calculated temperature
+      else {
+        heating_target_temperature =  pid_output * (heatingWaterClimate->target_temperature_high - heatingWaterClimate->target_temperature_low) 
+        + heatingWaterClimate->target_temperature_low;      
+      }
+      ESP_LOGD("opentherm_component", "setBoilerTemperature  at %f °C (from PID Output)", heating_target_temperature);
+    }
+    //If PID is disabled send low target temperature of heatingwaterclimate
+    else if (thermostatSwitch->state) {
+      heating_target_temperature = heatingWaterClimate->target_temperature;
+      ESP_LOGD("opentherm_component", "setBoilerTemperature  at %f °C (from heating water climate)", heating_target_temperature);
+    }
+    //If thermostat doesn't control
+    else {
+      bool enableCentralHeating = heatingWaterClimate->mode == ClimateMode::CLIMATE_MODE_OFF;
+//      // If the room thermostat is off, set it to 10, so that the pump continues to operate
+//      heating_target_temperature = 10.0;
+//      ESP_LOGD("opentherm_component", "setBoilerTemperature at %f °C (default low value)", heating_target_temperature);
+    }
     
     //Set/Get Boiler Status
     auto response = ot.setBoilerStatus(enableCentralHeating, enableHotWater, enableCooling);
@@ -111,28 +139,7 @@ public:
     float hotWater_temperature = getHotWaterTemperature();
 
 
-    // Set temperature depending on room thermostat
-    float heating_target_temperature;
-    if (this->pid_output_ != nullptr) {
-      float pid_output = pid_output_->get_state();
-      if (pid_output == 0.0f) {
-        heating_target_temperature = 10.0f;
-      }
-      else {
-        heating_target_temperature =  pid_output * (heatingWaterClimate->target_temperature_high - heatingWaterClimate->target_temperature_low) 
-        + heatingWaterClimate->target_temperature_low;      
-      }
-      ESP_LOGD("opentherm_component", "setBoilerTemperature  at %f °C (from PID Output)", heating_target_temperature);
-    }
-    else if (thermostatSwitch->state) {
-      heating_target_temperature = heatingWaterClimate->target_temperature;
-      ESP_LOGD("opentherm_component", "setBoilerTemperature  at %f °C (from heating water climate)", heating_target_temperature);
-    }
-//    else {
-//      // If the room thermostat is off, set it to 10, so that the pump continues to operate
-//      heating_target_temperature = 10.0;
-//      ESP_LOGD("opentherm_component", "setBoilerTemperature at %f °C (default low value)", heating_target_temperature);
-//    }
+    //Set target temperature, CHenable takes precedence over it so it only works when heat is enabled
     ot.setBoilerTemperature(heating_target_temperature);
 
     // Set hot water temperature
